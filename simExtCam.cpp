@@ -4,7 +4,7 @@
 #include <shlwapi.h> // for the "PathRemoveFileSpec" function
 #include <vector>
 #include <iostream>
-#include "v_repLib.h"
+#include "simLib.h"
 #include "scriptFunctionData.h"
 
 #pragma comment(lib, "Winmm.lib")
@@ -26,7 +26,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 #pragma managed(pop)
 #endif
 
-#define VREP_DLLEXPORT extern "C" __declspec(dllexport)
+#define SIM_DLLEXPORT extern "C" __declspec(dllexport)
 
 #define CONCAT(x,y,z) x y z
 #define strConCat(x,y,z)    CONCAT(x,y,z)
@@ -46,7 +46,7 @@ struct SimpleCapParams captureInfo[4];
 CRITICAL_SECTION m_cs;
 bool displayAcknowledgment=false;
 
-LIBRARY vrepLib;
+LIBRARY simLib;
 
 void killThread()
 {
@@ -316,36 +316,36 @@ void LUA_GRAB_CALLBACK(SScriptCallBack* cb)
 }
 
 
-VREP_DLLEXPORT unsigned char v_repStart(void* reservedPointer,int reservedInt)
-{ // This is called just once, at the start of V-REP
+SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
+{ // This is called just once, at the start of CoppeliaSim
 
-    // Dynamically load and bind V-REP functions:
+    // Dynamically load and bind CoppeliaSim functions:
     char curDirAndFile[1024];
     GetModuleFileName(NULL,curDirAndFile,1023);
     PathRemoveFileSpec(curDirAndFile);
     std::string currentDirAndPath(curDirAndFile);
     std::string temp(currentDirAndPath);
-    temp+="\\v_rep.dll";
-    vrepLib=loadVrepLibrary(temp.c_str());
-    if (vrepLib==NULL)
+    temp+="\\coppeliaSim.dll";
+    simLib=loadSimLibrary(temp.c_str());
+    if (simLib==NULL)
     {
-        std::cout << "Error, could not find or correctly load v_rep.dll. Cannot start 'Cam' plugin.\n";
-        return(0); // Means error, V-REP will unload this plugin
+        std::cout << "Error, could not find or correctly load coppeliaSim.dll. Cannot start 'Cam' plugin.\n";
+        return(0); // Means error, CoppeliaSim will unload this plugin
     }
-    if (getVrepProcAddresses(vrepLib)==0)
+    if (getSimProcAddresses(simLib)==0)
     {
-        std::cout << "Error, could not find all required functions in v_rep.dll. Cannot start 'Cam' plugin.\n";
-        unloadVrepLibrary(vrepLib);
-        return(0); // Means error, V-REP will unload this plugin
+        std::cout << "Error, could not find all required functions in coppeliaSim.dll. Cannot start 'Cam' plugin.\n";
+        unloadSimLibrary(simLib);
+        return(0); // Means error, CoppeliaSim will unload this plugin
     }
 
-	int vrepVer, vrepRev;
-	simGetIntegerParameter(sim_intparam_program_version, &vrepVer);
-	simGetIntegerParameter(sim_intparam_program_revision, &vrepRev);
-	if ((vrepVer<30400) || ((vrepVer == 30400) && (vrepRev<9)))
+	int simVer, simRev;
+	simGetIntegerParameter(sim_intparam_program_version, &simVer);
+	simGetIntegerParameter(sim_intparam_program_revision, &simRev);
+	if ((simVer<30400) || ((simVer == 30400) && (simRev<9)))
 	{
-		std::cout << "Sorry, your V-REP copy is somewhat old, V-REP 3.4.0 rev9 or higher is required. Cannot start 'Cam' plugin.\n";
-		unloadVrepLibrary(vrepLib);
+		std::cout << "Sorry, your CoppeliaSim copy is somewhat old, CoppeliaSim 3.4.0 rev9 or higher is required. Cannot start 'Cam' plugin.\n";
+		unloadSimLibrary(simLib);
 		return(0);
 	}
 
@@ -354,7 +354,7 @@ VREP_DLLEXPORT unsigned char v_repStart(void* reservedPointer,int reservedInt)
     if (deviceCount<0)
     {
         std::cout << "ESCAPI initialization failed (error code: " << deviceCount << "). Is 'escapi.dll' available? Cannot start 'Cam' plugin.\n";
-        unloadVrepLibrary(vrepLib);
+        unloadSimLibrary(simLib);
         return(0); // initialization failed!!
     }
 
@@ -379,21 +379,21 @@ VREP_DLLEXPORT unsigned char v_repStart(void* reservedPointer,int reservedInt)
     InitializeCriticalSection(&m_cs);
 
     return(4); // initialization went fine, return the version number of this extension module (can be queried with simGetModuleName)
-    // version 1 was for V-REP versions before V-REP 2.5.12
-    // version 2 was for V-REP versions before V-REP 2.6.0
-	// version 3 was for V-REP versions before V-REP 3.4.1
+    // version 1 was for CoppeliaSim versions before CoppeliaSim 2.5.12
+    // version 2 was for CoppeliaSim versions before CoppeliaSim 2.6.0
+	// version 3 was for CoppeliaSim versions before CoppeliaSim 3.4.1
 }
 
-VREP_DLLEXPORT void v_repEnd()
-{ // This is called just once, at the end of V-REP
+SIM_DLLEXPORT void simEnd()
+{ // This is called just once, at the end of CoppeliaSim
     // Release resources here..
 
     // The thread should have been exited alreads (all simulations stopped!)
 
-    unloadVrepLibrary(vrepLib); // release the library
+    unloadSimLibrary(simLib); // release the library
 }
 
-VREP_DLLEXPORT void* v_repMessage(int message,int* auxiliaryData,void* customData,int* replyData)
+SIM_DLLEXPORT void* simMessage(int message,int* auxiliaryData,void* customData,int* replyData)
 { // This is called quite often. Just watch out for messages/events you want to handle
     // This function should not generate any error messages:
     int errorModeSaved;
