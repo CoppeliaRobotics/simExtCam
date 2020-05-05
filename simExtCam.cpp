@@ -48,6 +48,19 @@ bool displayAcknowledgment=false;
 
 LIBRARY simLib;
 
+bool canOutputMsg(int msgType)
+{
+    int plugin_verbosity = sim_verbosity_default;
+    simGetModuleInfo("Cam",sim_moduleinfo_verbosity,nullptr,&plugin_verbosity);
+    return(plugin_verbosity>=msgType);
+}
+
+void outputMsg(int msgType,const char* msg)
+{
+    if (canOutputMsg(msgType))
+        printf("%s\n",msg);
+}
+
 void killThread()
 {
     _camThreadLaunched=false;
@@ -329,12 +342,12 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
     simLib=loadSimLibrary(temp.c_str());
     if (simLib==NULL)
     {
-        std::cout << "Error, could not find or correctly load coppeliaSim.dll. Cannot start 'Cam' plugin.\n";
+        outputMsg(sim_verbosity_errors,"simExtCam plugin error: could not find or correctly load coppeliaSim.dll. Cannot start 'Cam' plugin.");
         return(0); // Means error, CoppeliaSim will unload this plugin
     }
     if (getSimProcAddresses(simLib)==0)
     {
-        std::cout << "Error, could not find all required functions in coppeliaSim.dll. Cannot start 'Cam' plugin.\n";
+        outputMsg(sim_verbosity_errors,"simExtCam plugin error: could not find all required functions in coppeliaSim.dll. Cannot start 'Cam' plugin.");
         unloadSimLibrary(simLib);
         return(0); // Means error, CoppeliaSim will unload this plugin
     }
@@ -344,7 +357,7 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
 	simGetIntegerParameter(sim_intparam_program_revision, &simRev);
 	if ((simVer<30400) || ((simVer == 30400) && (simRev<9)))
 	{
-		std::cout << "Sorry, your CoppeliaSim copy is somewhat old, CoppeliaSim 3.4.0 rev9 or higher is required. Cannot start 'Cam' plugin.\n";
+		outputMsg(sim_verbosity_errors,"simExtCam plugin error: sorry, your CoppeliaSim copy is somewhat old, CoppeliaSim 3.4.0 rev9 or higher is required. Cannot start 'Cam' plugin.");
 		unloadSimLibrary(simLib);
 		return(0);
 	}
@@ -353,7 +366,8 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
     deviceCount=setupESCAPI();
     if (deviceCount<0)
     {
-        std::cout << "ESCAPI initialization failed (error code: " << deviceCount << "). Is 'escapi.dll' available? Cannot start 'Cam' plugin.\n";
+        if (canOutputMsg(sim_verbosity_errors))
+            std::cout << "simExtCam plugin error: ESCAPI initialization failed (error code: " << deviceCount << "). Is 'escapi.dll' available? Cannot start 'Cam' plugin.\n";
         unloadSimLibrary(simLib);
         return(0); // initialization failed!!
     }
