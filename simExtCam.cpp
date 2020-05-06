@@ -342,32 +342,22 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
     simLib=loadSimLibrary(temp.c_str());
     if (simLib==NULL)
     {
-        outputMsg(sim_verbosity_errors,"simExtCam plugin error: could not find or correctly load coppeliaSim.dll. Cannot start 'Cam' plugin.");
+        outputMsg(sim_verbosity_errors,"simExtCam: error: could not find or correctly load coppeliaSim.dll. Cannot start 'Cam' plugin.");
         return(0); // Means error, CoppeliaSim will unload this plugin
     }
     if (getSimProcAddresses(simLib)==0)
     {
-        outputMsg(sim_verbosity_errors,"simExtCam plugin error: could not find all required functions in coppeliaSim.dll. Cannot start 'Cam' plugin.");
+        outputMsg(sim_verbosity_errors,"simExtCam: error: could not find all required functions in coppeliaSim.dll. Cannot start 'Cam' plugin.");
         unloadSimLibrary(simLib);
         return(0); // Means error, CoppeliaSim will unload this plugin
     }
-
-	int simVer, simRev;
-	simGetIntegerParameter(sim_intparam_program_version, &simVer);
-	simGetIntegerParameter(sim_intparam_program_revision, &simRev);
-	if ((simVer<30400) || ((simVer == 30400) && (simRev<9)))
-	{
-		outputMsg(sim_verbosity_errors,"simExtCam plugin error: sorry, your CoppeliaSim copy is somewhat old, CoppeliaSim 3.4.0 rev9 or higher is required. Cannot start 'Cam' plugin.");
-		unloadSimLibrary(simLib);
-		return(0);
-	}
 
     // Marc modified following function to return a neg. value in case of initialization error:
     deviceCount=setupESCAPI();
     if (deviceCount<0)
     {
         if (canOutputMsg(sim_verbosity_errors))
-            std::cout << "simExtCam plugin error: ESCAPI initialization failed (error code: " << deviceCount << "). Is 'escapi.dll' available? Cannot start 'Cam' plugin.\n";
+            std::cout << "simExtCam: error: ESCAPI initialization failed (error code: " << deviceCount << "). Is 'escapi.dll' available? Cannot start 'Cam' plugin.\n";
         unloadSimLibrary(simLib);
         return(0); // initialization failed!!
     }
