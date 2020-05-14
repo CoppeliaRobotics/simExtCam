@@ -7,5 +7,6 @@ object_script.*.Debug
 object_script.*.Release
 debug/
 release/
+*.vcxproj.user
 *.vs/
 x64/

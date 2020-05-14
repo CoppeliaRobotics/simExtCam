@@ -48,19 +48,6 @@ bool displayAcknowledgment=false;
 
 LIBRARY simLib;
 
-bool canOutputMsg(int msgType)
-{
-    int plugin_verbosity = sim_verbosity_default;
-    simGetModuleInfo("Cam",sim_moduleinfo_verbosity,nullptr,&plugin_verbosity);
-    return(plugin_verbosity>=msgType);
-}
-
-void outputMsg(int msgType,const char* msg)
-{
-    if (canOutputMsg(msgType))
-        printf("%s\n",msg);
-}
-
 void killThread()
 {
     _camThreadLaunched=false;
@@ -342,12 +329,12 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
     simLib=loadSimLibrary(temp.c_str());
     if (simLib==NULL)
     {
-        outputMsg(sim_verbosity_errors,"simExtCam: error: could not find or correctly load coppeliaSim.dll. Cannot start 'Cam' plugin.");
+        simAddLog("Cam",sim_verbosity_errors,"could not find or correctly load the CoppeliaSim library. Cannot start the plugin.");
         return(0); // Means error, CoppeliaSim will unload this plugin
     }
     if (getSimProcAddresses(simLib)==0)
     {
-        outputMsg(sim_verbosity_errors,"simExtCam: error: could not find all required functions in coppeliaSim.dll. Cannot start 'Cam' plugin.");
+        simAddLog("Cam",sim_verbosity_errors,"could not find all required functions in the CoppeliaSim library. Cannot start the plugin.");
         unloadSimLibrary(simLib);
         return(0); // Means error, CoppeliaSim will unload this plugin
     }
@@ -356,8 +343,10 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
     deviceCount=setupESCAPI();
     if (deviceCount<0)
     {
-        if (canOutputMsg(sim_verbosity_errors))
-            std::cout << "simExtCam: error: ESCAPI initialization failed (error code: " << deviceCount << "). Is 'escapi.dll' available? Cannot start 'Cam' plugin.\n";
+        std::string txt("ESCAPI initialization failed (error code: ");
+        txt+=std::to_string(deviceCount);
+        txt+=". Is 'escapi.dll' available? Cannot start the plugin.";
+        simAddLog("Cam",sim_verbosity_errors,txt.c_str());
         unloadSimLibrary(simLib);
         return(0); // initialization failed!!
     }
