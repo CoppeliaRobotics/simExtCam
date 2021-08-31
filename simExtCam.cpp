@@ -351,8 +351,6 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
         return(0); // initialization failed!!
     }
 
-	simRegisterScriptVariable("simCam", "require('simExtCam')", 0);
-
 	// Register the new functions:
 	simRegisterScriptCallbackFunction(strConCat(LUA_START, "@", "Cam"), strConCat("number result,number resX,number resY=", LUA_START, "(number deviceIndex,number resX,number resY)"), LUA_START_CALLBACK);
 	simRegisterScriptCallbackFunction(strConCat(LUA_END, "@", "Cam"), strConCat("number result=", LUA_END, "(number deviceIndex)"), LUA_END_CALLBACK);
