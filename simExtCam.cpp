@@ -352,10 +352,10 @@ SIM_DLLEXPORT unsigned char simStart(void* reservedPointer,int reservedInt)
     }
 
 	// Register the new functions:
-	simRegisterScriptCallbackFunction(strConCat(LUA_START, "@", "Cam"), strConCat("number result,number resX,number resY=", LUA_START, "(number deviceIndex,number resX,number resY)"), LUA_START_CALLBACK);
-	simRegisterScriptCallbackFunction(strConCat(LUA_END, "@", "Cam"), strConCat("number result=", LUA_END, "(number deviceIndex)"), LUA_END_CALLBACK);
-	simRegisterScriptCallbackFunction(strConCat(LUA_INFO, "@", "Cam"), strConCat("string info=", LUA_INFO, "(number deviceIndex)"), LUA_INFO_CALLBACK);
-	simRegisterScriptCallbackFunction(strConCat(LUA_GRAB, "@", "Cam"), strConCat("number result=", LUA_GRAB, "(number deviceIndex,number visionSensorHandle)"), LUA_GRAB_CALLBACK);
+	simRegisterScriptCallbackFunction(strConCat(LUA_START, "@", "Cam"), strConCat("int result,int resX,int resY=", LUA_START, "(int deviceIndex,int resX,int resY)"), LUA_START_CALLBACK);
+	simRegisterScriptCallbackFunction(strConCat(LUA_END, "@", "Cam"), strConCat("int result=", LUA_END, "(int deviceIndex)"), LUA_END_CALLBACK);
+	simRegisterScriptCallbackFunction(strConCat(LUA_INFO, "@", "Cam"), strConCat("string info=", LUA_INFO, "(int deviceIndex)"), LUA_INFO_CALLBACK);
+	simRegisterScriptCallbackFunction(strConCat(LUA_GRAB, "@", "Cam"), strConCat("int result=", LUA_GRAB, "(int deviceIndex,int visionSensorHandle)"), LUA_GRAB_CALLBACK);
 
 	// Following for backward compatibility:
 	simRegisterScriptVariable(LUA_START_OLD, LUA_START, -1);
