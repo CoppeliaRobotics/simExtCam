@@ -4,8 +4,8 @@
 #include <shlwapi.h> // for the "PathRemoveFileSpec" function
 #include <vector>
 #include <iostream>
-#include "simLib.h"
-#include "scriptFunctionData.h"
+#include <simLib.h>
+#include <scriptFunctionData.h>
 
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "Shlwapi.lib")
