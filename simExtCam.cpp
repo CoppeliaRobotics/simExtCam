@@ -26,7 +26,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 #pragma managed(pop)
 #endif
 
-#define SIM_DLLEXPORT extern "C" __declspec(dllexport)
+#include <simLib/simExp.h>
 
 #define CONCAT(x,y,z) x y z
 #define strConCat(x,y,z)    CONCAT(x,y,z)
