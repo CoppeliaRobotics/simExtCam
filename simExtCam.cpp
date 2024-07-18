@@ -272,7 +272,7 @@ void LUA_GRAB_CALLBACK(SScriptCallBack* cb)
                     simSetIntegerParameter(sim_intparam_error_report_mode,sim_api_errormessage_ignore);
                     int t=simGetObjectType(arg2);
                     simSetIntegerParameter(sim_intparam_error_report_mode,errorModeSaved); // restore previous settings
-                    if (t==sim_object_visionsensor_type)
+                    if (t==sim_sceneobject_visionsensor)
                     {
                         int r[2]={0,0};
                         simGetVisionSensorResolution(arg2,r);
